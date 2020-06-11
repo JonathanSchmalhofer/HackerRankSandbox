@@ -5,8 +5,8 @@ using namespace std;
 
 vector<string> split_string(string);
 
-int calculate_health(string d, int first, int last, vector<string> genes, vector<int> health) {
-    int total_health{0};
+long long int calculate_health(string d, int first, int last, vector<string> genes, vector<int> health) {
+    long long int total_health{0};
 
     assert(first <= last);
     assert(last < int(genes.size()));
@@ -33,16 +33,20 @@ int calculate_health(string d, int first, int last, vector<string> genes, vector
     return total_health;
 }
 
-
-
 int main()
 {
+    string line; // self added
+    ifstream myfile ("input00.txt"); // self added
+
     int n;
-    cin >> n;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    //cin >> n;
+    //cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline (myfile,line); // self added
+    n = stoi(line); // self added
 
     string genes_temp_temp;
-    getline(cin, genes_temp_temp);
+    //getline(cin, genes_temp_temp);
+    getline(myfile, genes_temp_temp);
 
     vector<string> genes_temp = split_string(genes_temp_temp);
 
@@ -55,7 +59,8 @@ int main()
     }
 
     string health_temp_temp;
-    getline(cin, health_temp_temp);
+    //getline(cin, health_temp_temp);
+    getline(myfile, health_temp_temp);
 
     vector<string> health_temp = split_string(health_temp_temp);
 
@@ -68,14 +73,17 @@ int main()
     }
 
     int s;
-    cin >> s;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    //cin >> s;
+    //cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline (myfile,line); // self added
+    s = stoi(line); // self added
 
-    int min_health{std::numeric_limits<int>::max()}, max_health{0};
+    long long int min_health{std::numeric_limits<long long int>::max()}, max_health{0};
 
     for (int s_itr = 0; s_itr < s; s_itr++) {
         string firstLastd_temp;
-        getline(cin, firstLastd_temp);
+        //getline(cin, firstLastd_temp);
+        getline(myfile, firstLastd_temp);
 
         vector<string> firstLastd = split_string(firstLastd_temp);
 
@@ -85,7 +93,7 @@ int main()
 
         string d = firstLastd[2];
 
-        int total_health = calculate_health(d, first, last, genes, health);
+        long long int total_health = calculate_health(d, first, last, genes, health);
         
         min_health = min(min_health, total_health);
         max_health = max(max_health, total_health);
@@ -93,6 +101,8 @@ int main()
     }
 
     cout << min_health << " " << max_health << endl;
+
+    myfile.close();
 
     return 0;
 }
