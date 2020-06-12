@@ -1,49 +1,50 @@
 #include <bits/stdc++.h>
 #include <limits>
 
-//#define READ_FROM_FILE
+#define READ_FROM_FILE
 
 // Start Implementation Aho-Corasick
 
-/*
 // Forward declaration
-class AhoCorasick;
+class AhcDnaCalculator;
 class TrieNode;
-class AhoCorasick {
+class AhcDnaCalculator {
  public:
-    AhoCorasick();
-    ~AhoCorasick();
-    Reset();
- Private:
-} 
-*/
+    AhcDnaCalculator();
+    ~AhcDnaCalculator();
+    void Reset();
+    void Feed();
+ private:
+    void FindLinks();
+    void Insert();
+
+    TrieNode* m_root;
+};
+
+class TrieNode {
+ public:
+    TrieNode();
+    ~TrieNode();
+    TrieNode* GetChild();
+    std::vector<TrieNode*> GetChildren();
+    TrieNode* AddChild();
+
+    char value;
+    unsigned long long int m_health;
+    unsigned long long int m_index;
+    bool m_leaf{false};
+    TrieNode* m_suffix{nullptr};
+    TrieNode* m_output{nullptr};
+    std::vector<TrieNode*> m_children;
+};
+
 // End Implementation Aho-Corasick
 
 std::vector<std::string> SplitString(std::string);
 
 unsigned long long int CalculateHealth(const std::string& d, const std::uint32_t first, const std::uint32_t last, const std::vector<std::string>& genes, const std::vector<unsigned long long int>& health) {
     unsigned long long int total_health{0};
-    assert(first <= last);
-    assert(last < std::uint32_t(genes.size()));
-    //std::cout << "We look at strand d = " << d << std::endl;
-    for (std::uint32_t i = first; i <= last; ++i) {
-        auto g_i = genes[i];
-        //std::cout << "  beneficial i = " << i << ", " << g_i << std::endl;
-        // Repeat till end is reached
-        size_t pos = 0;
-        size_t found_position = d.find(g_i);
-        while (found_position!= std::string::npos) {
-            auto sub_string = d.substr(pos,d.size()-pos);
-            size_t skipped = d.size()-sub_string.size();
-            //std::cout << "    Looking only at " << sub_string << std::endl;
-            found_position = sub_string.find(g_i);
-            if (found_position != std::string::npos) {
-                //std::cout << "    FOUND AT " << found_position << std::endl;
-                total_health += health[i];
-                pos = found_position + skipped + 1;
-            }
-        }
-    }
+    
     return total_health;
 }
 
