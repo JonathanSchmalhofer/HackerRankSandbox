@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 #include <limits>
 
-#define READ_FROM_FILE
-#define VERBOSE
+//#define READ_FROM_FILE
+//#define VERBOSE
 
 // Start Implementation of Helper-Class using Aho-Corasick Automaton
 
@@ -19,8 +19,10 @@ class AhoCorasickDnaHealthAutomaton {
     TrieNode* Insert(const std::string& s, const unsigned long long int health, const std::uint32_t gene_index);
     void FindFailureLinks();
     void PrintAllFailureLinks();
+    unsigned long long int CalculateHealth(const std::string& d, const std::uint32_t first, const std::uint32_t last);
  private:
-    //unsigned long long int ();
+    unsigned long long int StepAndLookupHealth(const char c, const std::uint32_t first, const std::uint32_t last);
+
     TrieNode* m_root;
     TrieNode* m_state;
 };
@@ -36,7 +38,7 @@ class TrieNode {
 
     char m_value;
     std::vector<unsigned long long int> m_healths; // duplicates are allowed, thus we need a vector
-    std::vector<std::uint32_t> m_gene_indexes; // // duplicates are allowed, thus we need a vector
+    std::vector<std::uint32_t> m_gene_indices; // // duplicates are allowed, thus we need a vector
     bool m_is_leaf{false};
     TrieNode* m_suffix{nullptr};
     TrieNode* m_output{nullptr};
@@ -64,7 +66,7 @@ TrieNode* AhoCorasickDnaHealthAutomaton::Insert(const std::string& s, const unsi
     }   
     node->m_is_leaf = true;
     node->m_healths.push_back(health);
-    node->m_gene_indexes.push_back(gene_index);
+    node->m_gene_indices.push_back(gene_index);
 #ifdef VERBOSE
     std::cout << "    m_root.ChildrenSize() = " << m_root->ChildrenSize() << ", leaf.m_healths.size() = " << node->m_healths.size() << std::endl;
 #endif 
@@ -125,6 +127,45 @@ void AhoCorasickDnaHealthAutomaton::PrintAllFailureLinks() {
     }
 }
 
+unsigned long long int AhoCorasickDnaHealthAutomaton::StepAndLookupHealth(const char c, const std::uint32_t first, const std::uint32_t last) {
+    unsigned long long int health_increment{0};
+
+    // If the current State has no child c, we follow the failure links back to root. Else, we stay at that state.
+    while (m_state->GetChild(c) == nullptr) {
+        if (m_state == m_root) {
+            break;
+        }
+        m_state = m_state->m_suffix;
+    }
+
+    // If a child c exists, that is our next state.
+    auto next_state = m_state->GetChild(c);
+    if (next_state != nullptr) {
+        m_state = next_state;
+    }
+
+    for (auto out = m_state; out != nullptr; out = out->m_output) {
+        if (out->m_is_leaf) {
+            for (auto i = std::lower_bound(out->m_gene_indices.begin(), out->m_gene_indices.end(), first);
+                 i != out->m_gene_indices.end() && *i <= last;
+                 ++i) {
+                health_increment += out->m_healths[std::distance(out->m_gene_indices.begin(), i)];
+            }
+        }
+    }
+
+    return health_increment;
+}
+
+unsigned long long int AhoCorasickDnaHealthAutomaton::CalculateHealth(const std::string& d, const std::uint32_t first, const std::uint32_t last) {
+    unsigned long long int total_health{0};
+    for (const auto c : d) {
+		total_health += StepAndLookupHealth(c, first, last);
+	}
+	Reset(); // don't forget to reset the state
+    return total_health;
+}
+
 ////////////////////////////////////////////
 // TrieNode
 TrieNode::TrieNode(const char character)
@@ -173,12 +214,6 @@ std::uint32_t TrieNode::ChildrenSize() {
 ////////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string> SplitString(std::string);
-
-unsigned long long int CalculateHealth(const std::string& d, const std::uint32_t first, const std::uint32_t last, const std::vector<std::string>& genes, const std::vector<unsigned long long int>& health) {
-    unsigned long long int total_health{0};
-    
-    return total_health;
-}
 
 #ifdef READ_FROM_FILE
 void GetInputs(std::uint32_t& n, std::uint32_t&s, std::vector<unsigned long long int>& health, std::vector<std::string>& genes, std::ifstream& textfile) {
@@ -289,7 +324,7 @@ int main()
         last = stoi(first_last_d[1]);
         std::string d = first_last_d[2];
 
-        unsigned long long int total_health = CalculateHealth(d, first, last, genes, health);
+        unsigned long long int total_health = automaton.CalculateHealth(d, first, last);
         min_health = std::min(min_health, total_health);
         max_health = std::max(max_health, total_health);
     }
