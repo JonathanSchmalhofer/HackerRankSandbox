@@ -3,42 +3,96 @@
 
 #define READ_FROM_FILE
 
-// Start Implementation Aho-Corasick
+// Start Implementation of Helper-Class using Aho-Corasick Automaton
+
+#define ALPHABET_SIZE 26
 
 // Forward declaration
-class AhcDnaCalculator;
+class AhoCorasickDnaHealthAutomaton;
 class TrieNode;
-class AhcDnaCalculator {
+class AhoCorasickDnaHealthAutomaton {
  public:
-    AhcDnaCalculator();
-    ~AhcDnaCalculator();
+    AhoCorasickDnaHealthAutomaton();
+    ~AhoCorasickDnaHealthAutomaton() = default;
     void Reset();
-    void Feed();
- private:
-    void FindLinks();
-    void Insert();
+    TrieNode* Insert(const std::string& s, const unsigned long long int health, const std::uint32_t gene_index);
 
+ private:
+    //unsigned long long int ();
+    void FindFailureLinks();
     TrieNode* m_root;
+    TrieNode* m_state;
 };
 
 class TrieNode {
  public:
-    TrieNode();
+    TrieNode(const char c);
     ~TrieNode();
-    TrieNode* GetChild();
+    TrieNode* GetChild(const char c);
     std::vector<TrieNode*> GetChildren();
-    TrieNode* AddChild();
+    TrieNode* AddChild(const char c);
 
-    char value;
-    unsigned long long int m_health;
-    unsigned long long int m_index;
-    bool m_leaf{false};
+    char m_value;
+    std::vector<unsigned long long int> m_healths; // duplicates are allowed, thus we need a vector
+    std::vector<std::uint32_t> m_gene_indexes; // // duplicates are allowed, thus we need a vector
+    bool m_is_leaf{false};
     TrieNode* m_suffix{nullptr};
-    TrieNode* m_output{nullptr};
     std::vector<TrieNode*> m_children;
 };
 
-// End Implementation Aho-Corasick
+////////////////////////////////////////////
+// AhoCorasick
+AhoCorasickDnaHealthAutomaton::AhoCorasickDnaHealthAutomaton()
+  : m_root(new TrieNode(' ')) {
+    Reset();
+}
+
+void AhoCorasickDnaHealthAutomaton::Reset() {
+    m_state = m_root;
+}
+
+TrieNode* AhoCorasickDnaHealthAutomaton::Insert(const std::string& s, const unsigned long long int health, const std::uint32_t gene_index) {
+    TrieNode* node{m_root};
+    for (const auto c : s) {
+        node = node->AddChild(c);
+    }   
+    node->m_is_leaf = true;
+    node->m_healths.push_back(health);
+    node->m_gene_indexes.push_back(gene_index);
+    return node;
+}
+
+////////////////////////////////////////////
+// TrieNode
+TrieNode::TrieNode(const char character)
+  : m_value(character), m_children(ALPHABET_SIZE, nullptr) {
+}
+
+TrieNode::~TrieNode() {
+    for (auto& child : m_children) {
+        delete child;
+    }
+}
+
+TrieNode* TrieNode::GetChild(const char c) {
+    char idx = c -'a'; // ASCII idx : a <- 0, b <- 1, ....
+    if (idx < ALPHABET_SIZE && idx > 0) {
+        return m_children[idx];
+    } else {
+        return nullptr;
+    }
+}
+
+TrieNode* TrieNode::AddChild(const char c) {
+    auto child = GetChild(c);
+    if (child == nullptr) {
+        child = new TrieNode(c);
+    }
+    return child;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string> SplitString(std::string);
 
@@ -60,7 +114,7 @@ void GetInputs(std::uint32_t& n, std::uint32_t&s, std::vector<unsigned long long
     std::getline(textfile, line);
     std::vector<std::string> genes_temp = SplitString(line);
     genes.clear();
-    for (int i = 0; i < n; i++) {
+    for (std::uint32_t i = 0; i < n; ++i) {
         std::string genes_item = genes_temp[i];
         genes.push_back(std::move(genes_item));
     }
@@ -68,8 +122,8 @@ void GetInputs(std::uint32_t& n, std::uint32_t&s, std::vector<unsigned long long
     // health[]
     std::getline(textfile, line);
     std::vector<std::string> health_temp = SplitString(line);
-    for (int i = 0; i < n; i++) {
-        int health_item = stoi(health_temp[i]);
+    for (std::uint32_t i = 0; i < n; ++i) {
+        unsigned long long int health_item = stoi(health_temp[i]);
         health[i] = health_item;
     }
 
@@ -90,7 +144,7 @@ void GetInputs(std::uint32_t& n, std::uint32_t&s, std::vector<unsigned long long
     //std::cout << "Enter genes (n space separated strings)" << std::endl;
     std::getline(std::cin, line);
     std::vector<std::string> genes_temp = SplitString(line);
-    for (int i = 0; i < n; i++) {
+    for (std::uint32_t i = 0; i < n; ++i) {
         std::string genes_item = genes_temp[i];
         genes.push_back(std::move(genes_item));
     }
@@ -99,8 +153,8 @@ void GetInputs(std::uint32_t& n, std::uint32_t&s, std::vector<unsigned long long
     //std::cout << "Enter genes (n space separated numbers)" << std::endl;
     std::getline(std::cin, line);
     std::vector<std::string> health_temp = SplitString(line);
-    for (int i = 0; i < n; i++) {
-        int health_item = stoi(health_temp[i]);
+    for (std::uint32_t i = 0; i < n; ++i) {
+        unsigned long long int health_item = stoi(health_temp[i]);
         health[i] = health_item;
     }
 
@@ -134,8 +188,13 @@ int main()
     GetInputs(n, s, health, genes);
 #endif
 
+    AhoCorasickDnaHealthAutomaton automaton{};
+    for (std::uint32_t idx{0}; idx < n; ++idx) {
+        automaton.Insert(genes[idx], health[idx], idx);
+    }
+
     // Now iterate s times over all DNA strands
-    for (int s_itr = 0; s_itr < s; s_itr++) {
+    for (std::uint32_t s_itr = 0; s_itr < s; ++s_itr) {
         std::string first_last_d_line;
 #ifdef READ_FROM_FILE
         std::getline(textfile, first_last_d_line);
