@@ -13,9 +13,20 @@ string rtrim(const string &);
  */
 
 vector<int> gradingStudents(vector<int> grades) {
-    vector<int> results;
+    vector<int> rounded_grades;
+    
+    for (const auto grade : grades) {
+        int rounded_grade{grade};
+        if (grade >= 38) {
+            int difference = 5 - (grade % 5);
+            if (difference < 3) {
+                rounded_grade += difference;
+            }
+        }
+        rounded_grades.push_back(rounded_grade);
+    }
 
-    return results;
+    return rounded_grades;
 }
 
 int main()
