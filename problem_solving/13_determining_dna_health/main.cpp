@@ -2,6 +2,7 @@
 #include <limits>
 
 #define READ_FROM_FILE
+#define VERBOSE
 
 // Start Implementation of Helper-Class using Aho-Corasick Automaton
 
@@ -16,10 +17,10 @@ class AhoCorasickDnaHealthAutomaton {
     ~AhoCorasickDnaHealthAutomaton() = default;
     void Reset();
     TrieNode* Insert(const std::string& s, const unsigned long long int health, const std::uint32_t gene_index);
-
+    void FindFailureLinks();
+    void PrintAllFailureLinks();
  private:
     //unsigned long long int ();
-    void FindFailureLinks();
     TrieNode* m_root;
     TrieNode* m_state;
 };
@@ -31,12 +32,14 @@ class TrieNode {
     TrieNode* GetChild(const char c);
     std::vector<TrieNode*> GetChildren();
     TrieNode* AddChild(const char c);
+    std::uint32_t ChildrenSize();
 
     char m_value;
     std::vector<unsigned long long int> m_healths; // duplicates are allowed, thus we need a vector
     std::vector<std::uint32_t> m_gene_indexes; // // duplicates are allowed, thus we need a vector
     bool m_is_leaf{false};
     TrieNode* m_suffix{nullptr};
+    TrieNode* m_output{nullptr};
     std::vector<TrieNode*> m_children;
 };
 
@@ -53,13 +56,73 @@ void AhoCorasickDnaHealthAutomaton::Reset() {
 
 TrieNode* AhoCorasickDnaHealthAutomaton::Insert(const std::string& s, const unsigned long long int health, const std::uint32_t gene_index) {
     TrieNode* node{m_root};
-    for (const auto c : s) {
+#ifdef VERBOSE
+    std::cout << "  Inserting to Automaton: " << s << std::endl;
+#endif
+    for (auto c : s) {
         node = node->AddChild(c);
     }   
     node->m_is_leaf = true;
     node->m_healths.push_back(health);
     node->m_gene_indexes.push_back(gene_index);
+#ifdef VERBOSE
+    std::cout << "    m_root.ChildrenSize() = " << m_root->ChildrenSize() << ", leaf.m_healths.size() = " << node->m_healths.size() << std::endl;
+#endif 
     return node;
+}
+
+void AhoCorasickDnaHealthAutomaton::FindFailureLinks() {
+    std::queue<TrieNode*> node_queue;
+    m_root->m_suffix = nullptr;
+    for (auto child : m_root->GetChildren()) {
+        child->m_suffix = m_root;
+        node_queue.push(child);
+    }
+    while (!node_queue.empty()) {
+        auto current_node = node_queue.front();
+        node_queue.pop();
+
+        for (auto child : current_node->GetChildren()) {
+            auto suffix_node = current_node->m_suffix;
+            while (child->m_suffix == nullptr) {
+                if (suffix_node->GetChild(child->m_value) != nullptr) {
+                    child->m_suffix = suffix_node->GetChild(child->m_value);
+                }
+                else if (suffix_node == m_root) {
+                    child->m_suffix = m_root;
+                }
+                else {
+                    suffix_node = suffix_node->m_suffix;
+                }
+            }
+            child->m_output = (child->m_suffix->m_is_leaf) ? child->m_suffix : child->m_suffix->m_output;
+            node_queue.push(child);
+        }
+    }
+}
+
+void AhoCorasickDnaHealthAutomaton::PrintAllFailureLinks() {
+    std::queue<TrieNode*> node_queue;
+    m_root->m_suffix = nullptr;
+    node_queue.push(m_root);
+    while (!node_queue.empty()) {
+        auto current_node = node_queue.front();
+        node_queue.pop();
+        for (auto child : current_node->GetChildren()) {
+            node_queue.push(child);
+        }
+        std::cout << "Looking at node: " << current_node->m_value;
+        if (current_node->m_suffix != nullptr) {
+            std::cout << ", failure links points to: ";
+            if (current_node->m_suffix == m_root) {
+                std::cout << "root";
+            }
+            else {
+                std::cout << current_node->m_suffix->m_value;
+            }
+        }
+        std::cout << std::endl;
+    }
 }
 
 ////////////////////////////////////////////
@@ -76,7 +139,7 @@ TrieNode::~TrieNode() {
 
 TrieNode* TrieNode::GetChild(const char c) {
     char idx = c -'a'; // ASCII idx : a <- 0, b <- 1, ....
-    if (idx < ALPHABET_SIZE && idx > 0) {
+    if (idx < ALPHABET_SIZE && idx >= 0) {
         return m_children[idx];
     } else {
         return nullptr;
@@ -84,11 +147,26 @@ TrieNode* TrieNode::GetChild(const char c) {
 }
 
 TrieNode* TrieNode::AddChild(const char c) {
-    auto child = GetChild(c);
+    TrieNode* &child{m_children[c - 'a']};
     if (child == nullptr) {
         child = new TrieNode(c);
     }
     return child;
+}
+
+std::vector<TrieNode*> TrieNode::GetChildren() {
+    std::vector<TrieNode*> existing_children;
+    for (auto child : m_children) {
+        if (child != nullptr) {
+            existing_children.push_back(child);
+        }
+    }
+    return existing_children;
+}
+
+std::uint32_t TrieNode::ChildrenSize() {
+    auto existing_children = GetChildren();
+    return static_cast<std::uint32_t>(existing_children.size());
 }
 
 
@@ -192,6 +270,10 @@ int main()
     for (std::uint32_t idx{0}; idx < n; ++idx) {
         automaton.Insert(genes[idx], health[idx], idx);
     }
+    automaton.FindFailureLinks();
+#ifdef VERBOSE
+    automaton.PrintAllFailureLinks();
+#endif
 
     // Now iterate s times over all DNA strands
     for (std::uint32_t s_itr = 0; s_itr < s; ++s_itr) {
