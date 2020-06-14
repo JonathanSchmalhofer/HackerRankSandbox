@@ -10,7 +10,8 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
-* Determining DNA Health :construction:
+* Grading Students :heavy_check_mark:
+* Determining DNA Health :heavy_check_mark:
 * The Love-Letter Mystery :heavy_check_mark:
 * Beautiful Binary String :heavy_check_mark:
 * Time Conversion :heavy_check_mark:
