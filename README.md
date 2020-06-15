@@ -8,6 +8,11 @@ Please find my profile here:
 * https://www.hackerrank.com/jschmalhofer
 * https://www.linkedin.com/in/jschmalhofer/
 
+## Infos
+
+:construction: Work in Progress
+:heavy_check_mark: Finished
+
 ## 30 Days of Code
 
 * Day 01: Data Types :heavy_check_mark:
@@ -15,6 +20,7 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
+* String Function Calculation :construction:
 * Grading Students :heavy_check_mark:
 * Determining DNA Health :heavy_check_mark:
 * The Love-Letter Mystery :heavy_check_mark:
