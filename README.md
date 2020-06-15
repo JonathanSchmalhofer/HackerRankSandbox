@@ -8,6 +8,11 @@ Please find my profile here:
 * https://www.hackerrank.com/jschmalhofer
 * https://www.linkedin.com/in/jschmalhofer/
 
+## 30 Days of Code
+
+* Day 01: Data Types :heavy_check_mark:
+* Day 00: Hello World :heavy_check_mark:
+
 ## Solved Problems and Work in Progress
 
 * Grading Students :heavy_check_mark:
