@@ -20,7 +20,9 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
-* String Function Calculation :construction:
+* Between Two Sets :heavy_check_mark:
+* Kangaroo :heavy_check_mark:
+* String Function Calculation :heavy_check_mark:
 * Grading Students :heavy_check_mark:
 * Determining DNA Health :heavy_check_mark:
 * The Love-Letter Mystery :heavy_check_mark:
