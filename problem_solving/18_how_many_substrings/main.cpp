@@ -1,11 +1,19 @@
-#include <bits/stdc++.h>
+#//include <bits/stdc++.h>
+#include <iostream>
+#include <istream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <limits>
 #include <limits>
 
 //#define READ_FROM_FILE
 //#define VERBOSE
 //#define DEBUG_OUTPUT
+//#define COMPARE_OUTPUT
 
-#define NOT_DEFINED std::numeric_limits<std::int32_t>::min()
+#define NOT_DEFINED std::numeric_limits<long long int>::min()
 
 // Class forward declarations
 // PLEASE NOTE CREDITS: The implementation of Suffix-Array-Builder and Kasai's Algorithm is a re-implementation of: https://www.geeksforgeeks.org/%C2%AD%C2%ADkasais-algorithm-for-construction-of-lcp-array-from-suffix-array/
@@ -27,542 +35,599 @@ std::vector<std::string> split_string(std::string input_string);
 ///////////////////////////////////////
 // Suffix - Declaration
 class Suffix {
- public:
-    Suffix() = default;
-    bool operator<(const Suffix &rhs);
+public:
+	Suffix() = default;
+	bool operator<(const Suffix &rhs);
 
-    std::int32_t m_original_index{0};
-    std::int32_t m_rank{0};
-    std::int32_t m_next_rank{NOT_DEFINED};
+	long long int m_original_index{ 0 };
+	long long int m_rank{ 0 };
+	long long int m_next_rank{ NOT_DEFINED };
 };
 
 ///////////////////////////////////////
 // SuffixArrayBuilder - Declaration
 class SuffixArrayBuilder {
- public:
-    SuffixArrayBuilder() = delete;
-    static std::vector<std::int32_t> Build(const std::string& s);
-    static std::vector<std::int32_t> Build(const std::string& s, std::vector<Suffix>& suffixes);
+public:
+	SuffixArrayBuilder() = delete;
+	static std::vector<long long int> Build(const std::string& s);
+	static std::vector<long long int> Build(const std::string& s, std::vector<Suffix>& suffixes);
 };
 
 ///////////////////////////////////////
 // KasaiAlgorithm - Declaration
 class KasaiAlgorithm {
- public:
-    KasaiAlgorithm() = delete;
-    static std::vector<std::int32_t> Build(const std::string& s, const std::vector<std::int32_t>& suffix_array);
-    static std::vector<std::int32_t> Invert(const std::vector<std::int32_t>& suffix_array);
+public:
+	KasaiAlgorithm() = delete;
+	static std::vector<long long int> Build(const std::string& s, const std::vector<long long int>& suffix_array);
+	static std::vector<long long int> Invert(const std::vector<long long int>& suffix_array);
 };
 
 ///////////////////////////////////////
 // SubstringCalculator - Declaration
 class SubstringCalculator {
- public:
-    SubstringCalculator() = delete;
-    static std::vector<std::int32_t> Solve(const std::string& s, const std::vector<std::vector<std::int32_t>>& queries);
+public:
+	struct Query {
+		long long int m_left{ 0 };
+		long long int m_right{ 0 };
+		long long int m_answer{ -1 };
+	};
+	SubstringCalculator() = delete;
+	static std::vector<long long int> Solve(const std::string& s, const std::vector<std::vector<long long int>>& queries);
+private:
+	static std::vector<std::vector<std::pair<long long int, SubstringCalculator::Query>>> ConvertQueries(const std::vector<std::vector<long long int>>& queries, const long long int n);
 };
 
 ///////////////////////////////////////
 // FenwickTree - Declaration
 class FenwickTree {
- public:
-    FenwickTree(const std::int32_t n);
-    void UpdateValue(std::int32_t index, const std::int32_t value);
-    std::int32_t LestSignificantBit(std::int32_t i);
-    std::int32_t GetValue(std::int32_t i);
+public:
+	FenwickTree(const long long int n);
+	void UpdateValue(long long int index, const long long int value);
+	long long int LestSignificantBit(long long int i);
+	long long int GetValue(long long int i);
 private:
-    std::vector<std::int32_t> array;
+	std::vector<long long int> array;
 };
 
 ///////////////////////////////////////
 // SubstringSum - Declaration
 class SubstringSum {
- public:
-    SubstringSum(const std::int32_t n);
-    void Add(std::int32_t index, const std::int32_t value);
-    void AddRange(std::int32_t left, std::int32_t right);
-    std::int32_t GetSum(std::int32_t i);
-    std::int32_t GetSum(std::int32_t left, std::int32_t right);
+public:
+	SubstringSum(const long long int n);
+	void Add(long long int index, const long long int value);
+	void AddRange(long long int left, long long int right);
+	long long int GetSum(long long int i);
+	long long int GetSum(long long int left, long long int right);
 private:
-    FenwickTree m_linear_sum;
-    FenwickTree m_offset_sum;
-    std::int32_t m_length;
+	FenwickTree m_linear_sum;
+	FenwickTree m_offset_sum;
+	long long int m_length;
 };
 
 ///////////////////////////////////////
 // LCPInterval - Declaration
 class LCPInterval {
- public:
-    LCPInterval(const std::int32_t length, LCPInterval* parent);
-    friend std::ostream& operator<<(std::ostream& os, const LCPInterval& interval);
+public:
+	LCPInterval(const long long int length, LCPInterval* parent);
+	friend std::ostream& operator<<(std::ostream& os, const LCPInterval& interval);
 
-    LCPInterval* m_parent;
-    std::int32_t m_min_lcp;
-    std::int32_t m_last_seen{std::numeric_limits<std::int32_t>::max()};
+	LCPInterval* m_parent;
+	long long int m_min_lcp;
+	long long int m_last_seen{ std::numeric_limits<long long int>::max() };
 };
 
 ///////////////////////////////////////
 // LCPIntervalBuilder - Declaration
 class LCPIntervalBuilder {
- public:
-    LCPIntervalBuilder() = delete;
-    static std::vector<std::pair<std::int32_t, std::int32_t>> GetLastSeen(const std::int32_t i, const std::vector<LCPInterval*>& lcp_interval, const std::vector<std::int32_t>& inverse_suffix_array);
-    static std::vector<LCPInterval*> Build(const std::vector<std::int32_t>& lcp_array);
+public:
+	LCPIntervalBuilder() = delete;
+	static std::vector<std::pair<long long int, long long int>> GetLastSeen(const long long int i, const std::vector<LCPInterval*>& lcp_interval, const std::vector<long long int>& inverse_suffix_array);
+	static std::vector<LCPInterval*> Build(const std::vector<long long int>& lcp_array);
 };
 
 ///////////////////////////////////////
 // Suffix - Implementation
 bool Suffix::operator<(const Suffix &rhs) {
-    bool is_less{false};
-    if (this->m_rank < rhs.m_rank) {
-        is_less = true;
-    }
-    else if (this->m_rank == rhs.m_rank) {
-        if (this->m_next_rank < rhs.m_next_rank) {
-            is_less = true;
-        }
-    }
-    return is_less;
+	bool is_less{ false };
+	if (this->m_rank < rhs.m_rank) {
+		is_less = true;
+	}
+	else if (this->m_rank == rhs.m_rank) {
+		if (this->m_next_rank < rhs.m_next_rank) {
+			is_less = true;
+		}
+	}
+	return is_less;
 }
 
 ///////////////////////////////////////
 // SuffixArrayBuilder - Implementation
-std::vector<std::int32_t> SuffixArrayBuilder::Build(const std::string& s, std::vector<Suffix>& suffixes) {
-    std::int32_t n = static_cast<std::int32_t>(s.length());
-    suffixes.clear();
-    suffixes.resize(n);
+std::vector<long long int> SuffixArrayBuilder::Build(const std::string& s, std::vector<Suffix>& suffixes) {
+	long long int n = static_cast<long long int>(s.length());
+	suffixes.clear();
+	suffixes.resize(n);
 
-    for (std::int32_t idx = 0; idx < n; ++idx) {
-        suffixes[idx].m_original_index = idx;
-        suffixes[idx].m_rank = static_cast<std::int32_t>(s[idx] - 'a');
-        if (idx+1 < n) {
-            suffixes[idx].m_next_rank = static_cast<std::int32_t>(s[idx + 1] - 'a');
-        }
-    }
+	for (long long int idx = 0; idx < n; ++idx) {
+		suffixes[idx].m_original_index = idx;
+		suffixes[idx].m_rank = static_cast<long long int>(s[idx] - 'a');
+		if (idx + 1 < n) {
+			suffixes[idx].m_next_rank = static_cast<long long int>(s[idx + 1] - 'a');
+		}
+	}
 
-    // sort by first two characters (m_rank and m_next_rank)
-    std::sort(suffixes.begin(), suffixes.end());
+	// sort by first two characters (m_rank and m_next_rank)
+	std::sort(suffixes.begin(), suffixes.end());
 
-    // now sort by first k = 2*n characters, with k = 4, 8, 16, ...
-    std::vector<std::int32_t> index_in_suffix(n, 0);
-    for (std::int32_t k = 4; k < 2*n; k *= 2) {
-        // Assigning rank and index values to first suffix 
-        std::int32_t rank{0};
-        std::int32_t prev_rank = suffixes[0].m_rank;
-        suffixes[0].m_rank = rank;
-        index_in_suffix[suffixes[0].m_original_index] = 0;
+	// now sort by first k = 2*n characters, with k = 4, 8, 16, ...
+	std::vector<long long int> index_in_suffix(n, 0);
+	for (long long int k = 4; k < 2 * n; k *= 2) {
+		// Assigning rank and index values to first suffix 
+		long long int rank{ 0 };
+		long long int prev_rank = suffixes[0].m_rank;
+		suffixes[0].m_rank = rank;
+		index_in_suffix[suffixes[0].m_original_index] = 0;
 
-        // Assigning rank to suffixes
-        for (std::int32_t i = 1; i < n; ++i) {
-            if (suffixes[i].m_rank == prev_rank &&
-                suffixes[i].m_next_rank == suffixes[i-1].m_next_rank) {
-                prev_rank = suffixes[i].m_rank;
-                suffixes[i].m_rank = rank;
-            }
-            else {
-                prev_rank = suffixes[i].m_rank;
-                suffixes[i].m_rank = ++rank;
-            }
-            index_in_suffix[suffixes[i].m_original_index] = i;
-        }
+		// Assigning rank to suffixes
+		for (long long int i = 1; i < n; ++i) {
+			if (suffixes[i].m_rank == prev_rank &&
+				suffixes[i].m_next_rank == suffixes[i - 1].m_next_rank) {
+				prev_rank = suffixes[i].m_rank;
+				suffixes[i].m_rank = rank;
+			}
+			else {
+				prev_rank = suffixes[i].m_rank;
+				suffixes[i].m_rank = ++rank;
+			}
+			index_in_suffix[suffixes[i].m_original_index] = i;
+		}
 
-        // Assign next rank to every suffix
-        for (std::int32_t i = 0; i < n; ++i) {
-            std::int32_t next_index = suffixes[i].m_original_index + k/2;
-            if ((next_index < n)) {
-                suffixes[i].m_next_rank = suffixes[index_in_suffix[next_index]].m_rank;
-            }
-            else {
-                suffixes[i].m_next_rank = NOT_DEFINED;
-            }
-        }
-  
-        // Sort the suffixes according to first k characters 
-        std::sort(suffixes.begin(), suffixes.end());
-    }
+		// Assign next rank to every suffix
+		for (long long int i = 0; i < n; ++i) {
+			long long int next_index = suffixes[i].m_original_index + k / 2;
+			if ((next_index < n)) {
+				suffixes[i].m_next_rank = suffixes[index_in_suffix[next_index]].m_rank;
+			}
+			else {
+				suffixes[i].m_next_rank = NOT_DEFINED;
+			}
+		}
 
-    // Store indexes of all sorted suffixes in the suffix array
-    std::vector<std::int32_t> suffix_array(n, 0);
-    for (std::int32_t i = 0; i < n; ++i) {
-        suffix_array[i] = suffixes[i].m_original_index;
-    }
+		// Sort the suffixes according to first k characters 
+		std::sort(suffixes.begin(), suffixes.end());
+	}
 
-    return suffix_array;
+	// Store indexes of all sorted suffixes in the suffix array
+	std::vector<long long int> suffix_array(n, 0);
+	for (long long int i = 0; i < n; ++i) {
+		suffix_array[i] = suffixes[i].m_original_index;
+	}
+
+	return suffix_array;
 }
 
-std::vector<std::int32_t> SuffixArrayBuilder::Build(const std::string& s) {
-    std::vector<Suffix> suffixes;
-    return SuffixArrayBuilder::Build(s, suffixes);
+std::vector<long long int> SuffixArrayBuilder::Build(const std::string& s) {
+	std::vector<Suffix> suffixes;
+	return SuffixArrayBuilder::Build(s, suffixes);
 }
 
 ///////////////////////////////////////
 // KasaiAlgorithm - Implementation
-std::vector<std::int32_t> KasaiAlgorithm::Build(const std::string& s, const std::vector<std::int32_t>& suffix_array) {
-    std::int32_t n = static_cast<std::int32_t>(s.length());
-    std::vector<std::int32_t> lcp_array(n, 0);
+std::vector<long long int> KasaiAlgorithm::Build(const std::string& s, const std::vector<long long int>& suffix_array) {
+	long long int n = static_cast<long long int>(s.length());
+	std::vector<long long int> lcp_array(n, 0);
 
-    std::vector<std::int32_t> inv_suffix_array = Invert(suffix_array);
+	std::vector<long long int> inv_suffix_array = Invert(suffix_array);
 
-    std::int32_t k = 0;
-    // Process all suffixes one by one starting from first suffix in s 
-    for (std::int32_t i = 0; i < n; ++i) {
-        if (inv_suffix_array[i] == n-1) {
-            k = 0;
-            continue;
-        } 
+	long long int k = 0;
+	// Process all suffixes one by one starting from first suffix in s 
+	for (long long int i = 0; i < n; ++i) {
+		if (inv_suffix_array[i] == n - 1) {
+			k = 0;
+			continue;
+		}
 
-        // j contains index of the next substring to be considered  to compare with the present substring, i.e., next string in suffix array
-        std::int32_t j = suffix_array[inv_suffix_array[i]+1];
-  
-        // start matching from k'th index as at-least k-1 characters will match
-        while (i+k < n && j+k < n && s[i+k] == s[j+k]) {
-            ++k;
-        }
+		// j contains index of the next substring to be considered  to compare with the present substring, i.e., next string in suffix array
+		long long int j = suffix_array[inv_suffix_array[i] + 1];
 
-        lcp_array[inv_suffix_array[i]+1] = k;
+		// start matching from k'th index as at-least k-1 characters will match
+		while (i + k < n && j + k < n && s[i + k] == s[j + k]) {
+			++k;
+		}
 
-        // delete the starting character from the string
-        if (k > 0) {
-            --k;
-        }
-    } 
+		lcp_array[inv_suffix_array[i] + 1] = k;
 
-    return lcp_array;
+		// delete the starting character from the string
+		if (k > 0) {
+			--k;
+		}
+	}
+
+	return lcp_array;
 }
 
-std::vector<std::int32_t> KasaiAlgorithm::Invert(const std::vector<std::int32_t>& suffix_array) {
-    std::int32_t n = static_cast<std::int32_t>(suffix_array.size());
-    std::vector<std::int32_t> inv_suffix_array(n, 0);
+std::vector<long long int> KasaiAlgorithm::Invert(const std::vector<long long int>& suffix_array) {
+	long long int n = static_cast<long long int>(suffix_array.size());
+	std::vector<long long int> inv_suffix_array(n, 0);
 
-    for (std::int32_t i = 0; i < n; ++i) {
-        inv_suffix_array[suffix_array[i]] = i;
-    }
-    return inv_suffix_array;
+	for (long long int i = 0; i < n; ++i) {
+		inv_suffix_array[suffix_array[i]] = i;
+	}
+	return inv_suffix_array;
 }
 
 ///////////////////////////////////////
 // FenwickTree - Implementation
-FenwickTree::FenwickTree(const std::int32_t n) {
-    array.resize(n);
+FenwickTree::FenwickTree(const long long int n) {
+	array.resize(n);
 }
 
-void FenwickTree::UpdateValue(std::int32_t index, const std::int32_t value) {
-    while (index < static_cast<std::int32_t>(array.size())) {
-        array[index] += value;
-        index += LestSignificantBit(index + 1);
-    }
+void FenwickTree::UpdateValue(long long int index, const long long int value) {
+	while (index < static_cast<long long int>(array.size())) {
+		array[index] += value;
+		index += LestSignificantBit(index + 1);
+	}
 }
 
-std::int32_t FenwickTree::LestSignificantBit(std::int32_t i) {
-    return i & -i;
+long long int FenwickTree::LestSignificantBit(long long int i) {
+	return i & -i;
 }
 
-std::int32_t FenwickTree::GetValue(std::int32_t i) {
-    std::int32_t value{0};
-    while (i != 0) {
-        value += array[i - 1];
-        i -= LestSignificantBit(i);
-    }
-    return value;
+long long int FenwickTree::GetValue(long long int i) {
+	long long int value{ 0 };
+	while (i != 0) {
+		value += array[i - 1];
+		i -= LestSignificantBit(i);
+	}
+	return value;
 }
 
 ///////////////////////////////////////
 // SubstringSum - Implementation
-SubstringSum::SubstringSum(const std::int32_t n)
- : m_linear_sum{n}, m_offset_sum{n}, m_length{n} {
+SubstringSum::SubstringSum(const long long int n)
+	: m_linear_sum{ n }, m_offset_sum{ n }, m_length{ n } {
 }
 
-void SubstringSum::Add(std::int32_t index, const std::int32_t value) {
-    if (index < m_length) {
-        m_offset_sum.UpdateValue(index, value);
-    }
+void SubstringSum::Add(long long int index, const long long int value) {
+	if (index < m_length) {
+		m_offset_sum.UpdateValue(index, value);
+	}
 }
 
-void SubstringSum::AddRange(std::int32_t left, std::int32_t right) {
-    m_linear_sum.UpdateValue(left, 1);
-    m_offset_sum.UpdateValue(left, 1 - left);
+void SubstringSum::AddRange(long long int left, long long int right) {
+	m_linear_sum.UpdateValue(left, 1);
+	m_offset_sum.UpdateValue(left, 1 - left);
 
-    m_linear_sum.UpdateValue(right, -1);
-    m_offset_sum.UpdateValue(right, right);
+	m_linear_sum.UpdateValue(right, -1);
+	m_offset_sum.UpdateValue(right, right);
 }
 
-std::int32_t SubstringSum::GetSum(std::int32_t i) {
-    std::int32_t sum{i};
-    sum *= m_linear_sum.GetValue(i + 1);
-    sum += m_offset_sum.GetValue(i + 1);
-    return sum;
+long long int SubstringSum::GetSum(long long int i) {
+	long long int sum{ i };
+	sum *= m_linear_sum.GetValue(i + 1);
+	sum += m_offset_sum.GetValue(i + 1);
+	return sum;
 }
 
-std::int32_t SubstringSum::GetSum(std::int32_t left, std::int32_t right) {
-    std::int32_t sum = (right + 1 - left) * (right + 2 - left) / 2 - GetSum(right);
-    return sum;
-}   
+long long int SubstringSum::GetSum(long long int left, long long int right) {
+	long long int sum = (right + 1 - left) * (right + 2 - left) / 2 - GetSum(right);
+	return sum;
+}
 
 ///////////////////////////////////////
 // LCPInterval - Implementation
 
-LCPInterval::LCPInterval(const std::int32_t length, LCPInterval* parent) 
- : m_parent{parent}, m_min_lcp{length} {
+LCPInterval::LCPInterval(const long long int length, LCPInterval* parent)
+	: m_parent{ parent }, m_min_lcp{ length } {
 }
 
 std::ostream& operator<<(std::ostream& os, const LCPInterval& interval) {
-    os << "min_lcp = " << interval.m_min_lcp << ", last_seen = " << interval.m_last_seen;
-    return os;
+	os << "min_lcp = " << interval.m_min_lcp << ", last_seen = " << interval.m_last_seen;
+	return os;
 }
 
 ///////////////////////////////////////
 // LCPIntervalBuilder - Implementation
 
-std::vector<std::pair<std::int32_t, std::int32_t>> LCPIntervalBuilder::GetLastSeen(const std::int32_t i, const std::vector<LCPInterval*>& lcp_interval, const std::vector<std::int32_t>& inverse_suffix_array) {
-    LCPInterval* interval = lcp_interval[inverse_suffix_array[i]];
-    std::vector<std::pair<std::int32_t, std::int32_t>> last_seen_stack{};
+std::vector<std::pair<long long int, long long int>> LCPIntervalBuilder::GetLastSeen(const long long int i, const std::vector<LCPInterval*>& lcp_interval, const std::vector<long long int>& inverse_suffix_array) {
+	LCPInterval* interval = lcp_interval[inverse_suffix_array[i]];
+	std::vector<std::pair<long long int, long long int>> last_seen_stack{};
 
-    std::int32_t last_seen{std::numeric_limits<std::int32_t>::max()};
+	long long int last_seen{ std::numeric_limits<long long int>::max() };
 
-    while (interval->m_parent != nullptr) {
-        if (interval->m_last_seen < last_seen) {
-            last_seen_stack.push_back(std::move(std::pair<std::int32_t, std::int32_t>{interval->m_last_seen, interval->m_min_lcp}));
-            last_seen = interval->m_last_seen;
-        }
-        interval->m_last_seen = i;
-        interval = interval->m_parent;
-    }
+	while (interval->m_parent != nullptr) {
+		if (interval->m_last_seen < last_seen) {
+			last_seen_stack.push_back(std::move(std::pair<long long int, long long int>{interval->m_last_seen, interval->m_min_lcp}));
+			last_seen = interval->m_last_seen;
+		}
+		interval->m_last_seen = i;
+		interval = interval->m_parent;
+	}
 
-    return last_seen_stack;
+	return last_seen_stack;
 }
 
-std::vector<LCPInterval*> LCPIntervalBuilder::Build(const std::vector<std::int32_t>& lcp_array) {
-    // the root interval should be the only one with parent == null
-    LCPInterval* interval = new LCPInterval(0, nullptr);
-    std::vector<LCPInterval*> suffix_array_intervals{};
-    std::int32_t n{static_cast<std::int32_t>(lcp_array.size())};
-    suffix_array_intervals.resize(n);
+std::vector<LCPInterval*> LCPIntervalBuilder::Build(const std::vector<long long int>& lcp_array) {
+	// the root interval should be the only one with parent == null
+	LCPInterval* interval = new LCPInterval(0, nullptr);
+	std::vector<LCPInterval*> suffix_array_intervals{};
+	long long int n{ static_cast<long long int>(lcp_array.size()) };
+	suffix_array_intervals.resize(n);
 
-    // step through lcp build interval assigning max count interval to each item of the initial string;
-    // each interval has a link to the containing interval.
+	// step through lcp build interval assigning max count interval to each item of the initial string;
+	// each interval has a link to the containing interval.
 
-    for (std::int32_t i = 0; i < n - 1; ++i) {
-        //start off we are in the current interval
-        //We know we are in the same interval as indexes to the left. We might be in 
-        //a sub interval if we have a higher matching prefex to the right.
-        suffix_array_intervals[i] = interval;
-        LCPInterval* prev_interval = interval;
-        while (interval->m_min_lcp > lcp_array[i + 1] && interval->m_parent != nullptr) {
-            //close the current ineterval
-            prev_interval = interval;
-            interval = interval->m_parent;
-        }
+	for (long long int i = 0; i < n - 1; ++i) {
+		//start off we are in the current interval
+		//We know we are in the same interval as indexes to the left. We might be in 
+		//a sub interval if we have a higher matching prefex to the right.
+		suffix_array_intervals[i] = interval;
+		LCPInterval* prev_interval = interval;
+		while (interval->m_min_lcp > lcp_array[i + 1] && interval->m_parent != nullptr) {
+			//close the current ineterval
+			prev_interval = interval;
+			interval = interval->m_parent;
+		}
 
-        if (interval->m_min_lcp < lcp_array[i + 1]) {
-            if (interval != prev_interval) {
-                // We have closed a higher LCP interval but are inserting a new one between it and its previous
-                // SuperInterval.
-                // e.g. oldInterval was MinimumLCP = 2 with SuperInterval MinimumLCP=0
-                // but we now whish to open an interval MinimumLCP=1
-                interval = new LCPInterval(lcp_array[i + 1], interval);
-                prev_interval->m_parent = interval;
-            }
-            else {
-                // Starting a new interval from the previous interval with higher LCP
-                interval = new LCPInterval(lcp_array[i + 1], interval);
-                suffix_array_intervals[i] = interval;
-            }
-        }
+		if (interval->m_min_lcp < lcp_array[i + 1]) {
+			if (interval != prev_interval) {
+				// We have closed a higher LCP interval but are inserting a new one between it and its previous
+				// SuperInterval.
+				// e.g. oldInterval was MinimumLCP = 2 with SuperInterval MinimumLCP=0
+				// but we now whish to open an interval MinimumLCP=1
+				interval = new LCPInterval(lcp_array[i + 1], interval);
+				prev_interval->m_parent = interval;
+			}
+			else {
+				// Starting a new interval from the previous interval with higher LCP
+				interval = new LCPInterval(lcp_array[i + 1], interval);
+				suffix_array_intervals[i] = interval;
+			}
+		}
 
-    }
-    suffix_array_intervals[lcp_array.size() - 1] = interval;
-    return suffix_array_intervals;
+	}
+	suffix_array_intervals[lcp_array.size() - 1] = interval;
+	return suffix_array_intervals;
 }
-
 
 ///////////////////////////////////////
 // SubstringCalculator - Implementation
-std::vector<std::int32_t> SubstringCalculator::Solve(const std::string& s, const std::vector<std::vector<std::int32_t>>& queries) {
-    std::vector<std::int32_t> all_counters{};
-    std::int32_t n = static_cast<std::int32_t>(s.length());
-    all_counters.resize(queries.size());
+std::vector<long long int> SubstringCalculator::Solve(const std::string& s, const std::vector<std::vector<long long int>>& queries) {
+	std::vector<long long int> all_counters{};
+	long long int n = static_cast<long long int>(s.length());
+	all_counters.resize(queries.size());
 
-    auto suffix_array = SuffixArrayBuilder::Build(s);
-    auto lcp_array = KasaiAlgorithm::Build(s, suffix_array);
-    auto inv_suffix_array = KasaiAlgorithm::Invert(suffix_array); // this could also be gotten as by-product from Build()
-    SubstringSum substring_sum{n};
-    auto lcp_interval = LCPIntervalBuilder::Build(lcp_array);
+	auto suffix_array = SuffixArrayBuilder::Build(s);
+	auto lcp_array = KasaiAlgorithm::Build(s, suffix_array);
+	auto inv_suffix_array = KasaiAlgorithm::Invert(suffix_array); // this could also be gotten as by-product from Build()
+	SubstringSum substring_sum{ n };
+	auto lcp_interval = LCPIntervalBuilder::Build(lcp_array);
 
 #ifdef DEBUG_OUTPUT
-    std::cout << "s = " << s << std::endl;
-    std::cout << "Suffix Array = " << suffix_array << std::endl;
-    std::cout << "Inverse Suffix Array = " << inv_suffix_array << std::endl;
-    std::cout << "LCP Array = " << lcp_array << std::endl;
+	std::cout << "s = " << s << std::endl;
+	std::cout << "Suffix Array = " << suffix_array << std::endl;
+	std::cout << "Inverse Suffix Array = " << inv_suffix_array << std::endl;
+	std::cout << "LCP Array = " << lcp_array << std::endl;
 #endif
 
-    for (std::int32_t idx = n - 1; idx >= 0; --idx) {
-        std::int32_t query_idx{0};
+	// this optimization for the queries must be done to avoid a long running nested for-loop over the queries
+	// (else the test cases 4+ seem to fail, probably because of a large number of q)
+	auto queries_per_idx = SubstringCalculator::ConvertQueries(queries, n);
 
-        auto last_seen_stack = LCPIntervalBuilder::GetLastSeen(idx, lcp_interval, inv_suffix_array);
+	for (long long int idx = n - 1; idx >= 0; --idx) {
+		auto last_seen_stack = LCPIntervalBuilder::GetLastSeen(idx, lcp_interval, inv_suffix_array);
 
-        std::int32_t matched_lcp{0};
-        while (last_seen_stack.size() > 0) {
-            auto last_seen_pair = last_seen_stack.back();
-            last_seen_stack.pop_back();
-            std::int32_t j = last_seen_pair.first;
-            std::int32_t new_lcp = last_seen_pair.second;
-            substring_sum.AddRange(j + matched_lcp, j + new_lcp - 1);
-            matched_lcp = new_lcp;
-        }
+		long long int matched_lcp{ 0 };
+		while (last_seen_stack.size() > 0) {
+			auto last_seen_pair = last_seen_stack.back();
+			last_seen_stack.pop_back();
+			long long int j = last_seen_pair.first;
+			long long int new_lcp = last_seen_pair.second;
+			substring_sum.AddRange(j + matched_lcp, j + new_lcp - 1);
+			matched_lcp = new_lcp;
+		}
 
-        for (const auto& query : queries) {
-            auto left = query[0];
-            auto right = query[1];
+		/*
+		Type of queries per index is:
+		std::vector<std::vector<std::pair<long long int, SubstringCalculator::Query>>>
+		Explanation:
+		- outer most vector has n entries, so the size of the string;
+		for each idx of the string a vector of all registered queries
+		starting at this idx is stored. So if no query starts at left = idx (current),
+		the vector of registered queries is empty and we can go to the next idx.
+		- The next vector holds all registered queries with left = idx (current).
+		- Each registered query is made as a pair of the query_index (so at which row should
+		the result be printed on screen) and a helper structure for the query (Idea also came from Nick Brett).
+		- The query struct has three attributes: left, right and answer (default: -1).
+		With this slightly more complicated structure holding the queries, we can shorten the nested for-loop
+		*/
+		if (!queries_per_idx[idx].empty()) {
+			for (const auto& q : queries_per_idx[idx]) {
+				all_counters[q.first] = substring_sum.GetSum(q.second.m_left, q.second.m_right);
+			}
+		}
+	}
+	return all_counters;
+}
 
-            // Only process queries, that start at the idx we currently look at
-            // Yes, this is not optimal, but as computation is skipped for all idx != left, the price should be low
-            if (left == idx) {
-                // THE CODE BELOW IS FOR MY PERSONAL COMPREHENSION ONLY
-                /*
-                std::int32_t counter{0};
-                std::int32_t number_distinct_substrings{0};
 
-                // n - suffixArr[i] will be the length of suffix
-                // at ith position in suffix array initializing
-                // count with length of first suffix of sorted
-                // suffixes
-                number_distinct_substrings = n - suffix_array[0];
-                for (std::int32_t i = 1; i < lcp_array.size(); ++i) {
-                    counter += (n - suffix_array[i]) - lcp_array[i - 1];
-                }
-                //counter++;  // for empty string
-                */
-                // THE CODE ABOVE IS FOR MY PERSONAL COMPREHENSION ONLY
-                all_counters[query_idx] = substring_sum.GetSum(left, right);
-            }
-            ++query_idx;
-        }
+std::vector<std::vector<std::pair<long long int, SubstringCalculator::Query>>> SubstringCalculator::ConvertQueries(const std::vector<std::vector<long long int>>& queries, const long long int n) {
+	std::vector<std::vector<std::pair<long long int, SubstringCalculator::Query>>> queries_per_index;
+	queries_per_index.resize(n);
 
-    }
-    return all_counters;
+	long long int query_index{ 0 };
+	for (const auto& q : queries) {
+		long long int idx = q[0];
+		if (queries_per_index[idx].empty()) {
+			// no query yet registered starting (=left) at this idx of the string
+			SubstringCalculator::Query query;
+			query.m_left = idx;
+			query.m_right = q[1];
+			std::vector<std::pair<long long int, SubstringCalculator::Query>> request_at_idx{};
+			request_at_idx.push_back(std::make_pair(query_index, query));
+			queries_per_index[idx] = request_at_idx;
+		}
+		else {
+			// there already exists a query starting at this idx
+			SubstringCalculator::Query query;
+			query.m_left = idx;
+			query.m_right = q[1];
+			queries_per_index[idx].push_back(std::make_pair(query_index, query));
+		}
+		++query_index;
+	}
+	return queries_per_index;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef READ_FROM_FILE
-void GetInputs(std::int32_t& n, std::int32_t& q, std::string& s, std::vector<std::vector<std::int32_t>>& queries, std::ifstream& textfile) {
-    std::string line;
-    std::getline(textfile, line);
+void GetInputs(long long int& n, long long int& q, std::string& s, std::vector<std::vector<long long int>>& queries, std::ifstream& textfile) {
+	std::string line;
+	std::getline(textfile, line);
 
-    std::vector<std::string> nq = split_string(line);
+	std::vector<std::string> nq = split_string(line);
 
-    n = std::stoi(nq[0]);
-    q = std::stoi(nq[1]);
+	n = std::stoll(nq[0]);
+	q = std::stoll(nq[1]);
 
-    std::getline(textfile, s);
+	std::getline(textfile, s);
 
-    queries.resize(q);
-    for (std::int32_t queries_row_itr = 0; queries_row_itr < q; ++queries_row_itr) {
-        queries[queries_row_itr].resize(2);
-        std::getline(textfile, line);
+	queries.resize(q);
+	for (long long int queries_row_itr = 0; queries_row_itr < q; ++queries_row_itr) {
+		queries[queries_row_itr].resize(2);
+		std::getline(textfile, line);
 
-        std::vector<std::string> lr = split_string(line);
+		std::vector<std::string> lr = split_string(line);
 
-        std::int32_t left = std::stoi(lr[0]);
-        std::int32_t right = std::stoi(lr[1]);
+		long long int left = std::stoll(lr[0]);
+		long long int right = std::stoll(lr[1]);
 
-        queries[queries_row_itr][0] = left;
-        queries[queries_row_itr][1] = right;
-    }
+		queries[queries_row_itr][0] = left;
+		queries[queries_row_itr][1] = right;
+	}
 }
+
+#ifdef COMPARE_OUTPUT
+void GetOutputs(const long long int q, std::vector<long long int>& results, std::ifstream& textfile) {
+	std::string line;
+	results.resize(q);
+	for (long long int result_row_itr = 0; result_row_itr < q; ++result_row_itr) {
+		std::getline(textfile, line);
+		results[result_row_itr] = std::stoll(line);
+	}
+}
+#endif
+
 #else
-void GetInputs(std::int32_t& n, std::int32_t& q, std::string& s, std::vector<std::vector<std::int32_t>>& queries) {
-    std::string nq_temp;
-    std::getline(std::cin, nq_temp);
+void GetInputs(long long int& n, long long int& q, std::string& s, std::vector<std::vector<long long int>>& queries) {
+	std::string nq_temp;
+	std::getline(std::cin, nq_temp);
 
-    std::vector<std::string> nq = split_string(nq_temp);
+	std::vector<std::string> nq = split_string(nq_temp);
 
-    n = std::stoi(nq[0]);
-    q = std::stoi(nq[1]);
+	n = std::stoll(nq[0]);
+	q = std::stoll(nq[1]);
 
-    std::getline(std::cin, s);
+	std::getline(std::cin, s);
 
-    queries.resize(q);
-    for (std::int32_t queries_row_itr = 0; queries_row_itr < q; ++queries_row_itr) {
-        queries[queries_row_itr].resize(2);
+	queries.resize(q);
+	for (long long int queries_row_itr = 0; queries_row_itr < q; ++queries_row_itr) {
+		queries[queries_row_itr].resize(2);
 
-        for (std::int32_t queries_column_itr = 0; queries_column_itr < 2; ++queries_column_itr) {
-            std::cin >> queries[queries_row_itr][queries_column_itr];
-        }
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+		for (long long int queries_column_itr = 0; queries_column_itr < 2; ++queries_column_itr) {
+			std::cin >> queries[queries_row_itr][queries_column_itr];
+		}
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
 }
 #endif
 
 template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vector)
 {
-    for (const auto& element : vector) {
-        os << element << ' ';
-    }
-    return os;
+	for (const auto& element : vector) {
+		os << element << ' ';
+	}
+	return os;
 }
 
 //##############################################################################
 
 int main()
 {
-    std::int32_t n{100000};
-    std::int32_t q{100000};
-    std::string s;
-    std::vector<std::vector<std::int32_t>> queries;
-    std::vector<std::vector<std::int32_t>> counts;
-    queries.reserve(100000); // Note: reserve means still, that size() == 0
-    counts.reserve(100000);
+	std::ios::sync_with_stdio(false); // to speed up std::cout
+	long long int n{ 100000 };
+	long long int q{ 100000 };
+	std::string s;
+	std::vector<std::vector<long long int>> queries;
+	std::vector<std::vector<long long int>> counts;
+	queries.reserve(100000); // Note: reserve means still, that size() == 0
+	counts.reserve(100000);
 
 #ifdef READ_FROM_FILE
-    std::ifstream textfile{"input00.txt"};
-    GetInputs(n, q, s, queries, textfile);
+	std::ifstream textfile{ "input06.txt" };
+	GetInputs(n, q, s, queries, textfile);
+#ifdef COMPARE_OUTPUT
+	std::ifstream textfile_results{ "output06.txt" };
+	std::vector<long long int> results;
+	GetOutputs(q, results, textfile_results);
+	textfile_results.close();
+#endif
 #else
-    GetInputs(n, q, s, queries);
+	GetInputs(n, q, s, queries);
 #endif
 
-    auto num_distinct_substrings = SubstringCalculator::Solve(s, queries);
+	auto num_distinct_substrings = SubstringCalculator::Solve(s, queries);
 
 #ifdef VERBOSE
-    std::cout << "num_distinct_substrings = " << std::endl;
+	std::cout << "num_distinct_substrings = " << std::endl;
 #endif
-    for (const auto num : num_distinct_substrings) {
-        std::cout << num << std::endl;
-    }
+	for (const auto num : num_distinct_substrings) {
+		std::cout << num << "\n"; // "\n" is faster than std::endl
+	}
+
+#ifdef COMPARE_OUTPUT
+	long long int q_idx{ 0 };
+	for (const auto& result : results) {
+		if (num_distinct_substrings[q_idx] != result) {
+			std::cout << "ERROR at q_idx = " << q_idx << ", expected: " << result << ", got: " << num_distinct_substrings[q_idx] << std::endl;
+		}
+		++q_idx;
+	}
+#endif
 
 #ifdef READ_FROM_FILE
-    textfile.close();
+	textfile.close();
 #endif
 
-    return 0;
+	return 0;
 }
 
 std::vector<std::string> split_string(std::string input_string) {
-    std::string::iterator new_end = unique(input_string.begin(), input_string.end(), [] (const char &x, const char &y) {
-        return x == y and x == ' ';
-    });
+	std::string::iterator new_end = unique(input_string.begin(), input_string.end(), [](const char &x, const char &y) {
+		return x == y && x == ' ';
+	});
 
-    input_string.erase(new_end, input_string.end());
+	input_string.erase(new_end, input_string.end());
 
-    while (input_string[input_string.length() - 1] == ' ') {
-        input_string.pop_back();
-    }
+	while (input_string[input_string.length() - 1] == ' ') {
+		input_string.pop_back();
+	}
 
-    std::vector<std::string> splits;
-    char delimiter = ' ';
+	std::vector<std::string> splits;
+	char delimiter = ' ';
 
-    size_t i = 0;
-    size_t pos = input_string.find(delimiter);
+	size_t i = 0;
+	size_t pos = input_string.find(delimiter);
 
-    while (pos != std::string::npos) {
-        splits.push_back(input_string.substr(i, pos - i));
+	while (pos != std::string::npos) {
+		splits.push_back(input_string.substr(i, pos - i));
 
-        i = pos + 1;
-        pos = input_string.find(delimiter, i);
-    }
+		i = pos + 1;
+		pos = input_string.find(delimiter, i);
+	}
 
-    splits.push_back(input_string.substr(i, std::min(pos, input_string.length()) - i + 1));
+	splits.push_back(input_string.substr(i, std::min(pos, input_string.length()) - i + 1));
 
-    return splits;
+	return splits;
 }
