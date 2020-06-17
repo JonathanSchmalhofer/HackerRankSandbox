@@ -20,6 +20,7 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
+* How Many Substrings :heavy_check_mark:
 * Between Two Sets :heavy_check_mark:
 * Kangaroo :heavy_check_mark:
 * String Function Calculation :heavy_check_mark:
