@@ -15,6 +15,9 @@ Please find my profile here:
 
 ## 30 Days of Code
 
+* Day 04: Class vs Instance :heavy_check_mark:
+* Day 03: Intro to Conditional Statements :heavy_check_mark:
+* Day 02: Operators :heavy_check_mark:
 * Day 01: Data Types :heavy_check_mark:
 * Day 00: Hello World :heavy_check_mark:
 
