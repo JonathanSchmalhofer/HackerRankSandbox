@@ -1,11 +1,11 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include <iostream>
 #include <istream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <limits>
+#include <cmath>
 #include <limits>
 
 using namespace std;
@@ -84,24 +84,66 @@ bool IsMagicSquare(const std::vector<std::vector<int>>& s) {
             return false;
         }
     }
+	// check main diagonal
+	int diag_sum{ 0 };
+	for (int row = 0; row < s.size(); ++row) {
+		if (s[row].size() == s.size()) {
+			diag_sum += s[row][row];
+		}
+	}
+	if (diag_sum != magic_constant) {
+		return false;
+	}
+	// check anti diagonal
+	diag_sum = 0;
+	for (int row = 0; row < s.size(); ++row) {
+		if (s[row].size() == s.size()) {
+			diag_sum += s[row][s[row].size()-row-1];
+		}
+	}
+	if (diag_sum != magic_constant) {
+		return false;
+	}
+
     return true;
+}
+
+inline bool operator==(const std::vector<std::vector<int>>& lhs, const std::vector<std::vector<int>>& rhs) {
+	if (lhs.size() != rhs.size()) {
+		return false;
+	}
+	for (int row = 0; row < lhs.size(); ++row) {
+		if (lhs[row].size() != rhs[row].size()) {
+			return false;
+		}
+		for (int col = 0; col < lhs[row].size(); ++col) {
+			if (lhs[row][col] != rhs[row][col]) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 std::vector<std::vector<std::vector<int>>> FindAllMagicSquaresBruteForce(const int n) {
     std::vector<int> array(n*n);
     std::vector<std::vector<std::vector<int>>>  magic_squares{};
 
+	std::vector<std::vector<int>> square;
+
+	
     // fill with range [1;n*n]
     for (int i = 0; i < n*n; ++i) {
         array[i] = i+1;
     }
 
     // check all possible combinations - super brute force
-    do { 
+    do {
         if (IsMagicSquare(ConvertToMatrix(array))) { 
             magic_squares.push_back(ConvertToMatrix(array)); 
         } 
     } while (std::next_permutation(array.begin(), array.end()));
+	//magic_squares.erase(std::unique(magic_squares.begin(), magic_squares.end()), magic_squares.end());
     return magic_squares;
 }
 
@@ -133,13 +175,10 @@ int main()
 
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-	/*
-    s[0][0]=4;s[0][1]=8;s[0][2]=2;
-    s[1][0]=4;s[1][1]=5;s[1][2]=7;
-    s[2][0]=6;s[2][1]=1;s[2][2]=6;
-	*/
 
     int result = formingMagicSquare(s);
+
+	std::cout << result << std::endl;
 
     fout << result << "\n";
 

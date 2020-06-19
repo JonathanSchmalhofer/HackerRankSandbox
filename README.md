@@ -23,6 +23,7 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
+* Magic Square Forming :heavy_check_mark:
 * The Birthday Bar :heavy_check_mark:
 * Breaking Best and Worst Records :heavy_check_mark:
 * How Many Substrings :heavy_check_mark:
