@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <functional>
 
 using namespace std;
 
@@ -31,12 +32,25 @@ int CountOccurences(const std::vector<int>& a) {
     return occurences;
 }
 
-int pickingNumbers(vector<int> a) {
+int pickingNumbersBruteForce(vector<int> a) {
     int max_numbers{0};
     do {
         max_numbers = std::max(max_numbers, CountOccurences(a));
     } while (std::next_permutation(a.begin(), a.end()));
     return max_numbers;
+}
+
+int pickingNumbers(vector<int> a) {
+	int max_numbers{0};
+	int max_entry = *std::max_element(a.begin(), a.end());
+	std::vector<int> sorted_occurence_counter(max_entry+1);
+	for (const auto& entry : a) {
+		++sorted_occurence_counter[entry];
+	}
+	for (int i = 1; i < sorted_occurence_counter.size(); ++i) {
+		max_numbers = std::max(max_numbers, sorted_occurence_counter[i - 1] + sorted_occurence_counter[i]);
+	}
+	return max_numbers;
 }
 
 int main()
@@ -45,11 +59,13 @@ int main()
 
     string n_temp;
     getline(cin, n_temp);
+	//n_temp = "6";
 
     int n = stoi(ltrim(rtrim(n_temp)));
 
     string a_temp_temp;
     getline(cin, a_temp_temp);
+	//a_temp_temp = "4 6 5 3 3 1";
 
     vector<string> a_temp = split(rtrim(a_temp_temp));
 
@@ -85,7 +101,7 @@ string rtrim(const string &str) {
     string s(str);
 
     s.erase(
-        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
+        find_if(s.rbegin(), s.rend(), std::not1(ptr_fun<int, int>(isspace))).base(),
         s.end()
     );
 
