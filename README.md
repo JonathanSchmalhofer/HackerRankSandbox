@@ -24,6 +24,7 @@ Please find my profile here:
 
 ## Solved Problems and Work in Progress
 
+* Picking Numbers :heavy_check_mark:
 * Magic Square Forming :heavy_check_mark:
 * The Birthday Bar :heavy_check_mark:
 * Breaking Best and Worst Records :heavy_check_mark:
