@@ -13,6 +13,12 @@ Please find my profile here:
 :construction: Work in Progress
 :heavy_check_mark: Finished
 
+## Interview Preparation Kit
+
+### Warmup Challenge
+
+* Sock Merchant :heavy_check_mark:
+
 ## 30 Days of Code
 
 * Day 06: Review Loop :heavy_check_mark:
@@ -23,7 +29,7 @@ Please find my profile here:
 * Day 01: Data Types :heavy_check_mark:
 * Day 00: Hello World :heavy_check_mark:
 
-## Solved Problems and Work in Progress
+## Solved Problems
 
 * Divisible Sum Pairs :heavy_check_mark:
 * Picking Numbers :heavy_check_mark:
