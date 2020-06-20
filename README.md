@@ -15,6 +15,7 @@ Please find my profile here:
 
 ## 30 Days of Code
 
+* Day 06: Review Loop :heavy_check_mark:
 * Day 05: Loops :heavy_check_mark:
 * Day 04: Class vs Instance :heavy_check_mark:
 * Day 03: Intro to Conditional Statements :heavy_check_mark:
