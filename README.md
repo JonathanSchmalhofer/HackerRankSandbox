@@ -17,6 +17,7 @@ Please find my profile here:
 
 ### Warmup Challenge
 
+* Counting Valleys :heavy_check_mark:
 * Sock Merchant :heavy_check_mark:
 
 ## 30 Days of Code
