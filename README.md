@@ -17,6 +17,7 @@ Please find my profile here:
 
 ### Warmup Challenge
 
+* Jumping On The Clouds :heavy_check_mark:
 * Counting Valleys :heavy_check_mark:
 * Sock Merchant :heavy_check_mark:
 
