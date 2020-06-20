@@ -15,8 +15,9 @@ Please find my profile here:
 
 ## Interview Preparation Kit
 
-### Warmup Challenge
+### Warmup Challenge :heavy_check_mark:
 
+* Repeated String :heavy_check_mark:
 * Jumping On The Clouds :heavy_check_mark:
 * Counting Valleys :heavy_check_mark:
 * Sock Merchant :heavy_check_mark:
