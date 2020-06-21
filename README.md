@@ -19,6 +19,8 @@ Please find my profile here:
 
 ### Arrays :construction:
 
+* New Year Chaos :heavy_check_mark:
+* Arrays: Left Rotation :heavy_check_mark:
 * 2D Array - DS :heavy_check_mark:
 
 ### Warmup Challenge :heavy_check_mark:
