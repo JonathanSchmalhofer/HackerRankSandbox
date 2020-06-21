@@ -10,10 +10,16 @@ Please find my profile here:
 
 ## Infos
 
-:construction: Work in Progress
-:heavy_check_mark: Finished
+| Meaning          | Icon               |
+|------------------|--------------------|
+| Work in Progress | :construction:     |
+| Finished         | :heavy_check_mark: |
 
-## Interview Preparation Kit
+## Interview Preparation Kit :construction:
+
+### Arrays :construction:
+
+* 2D Array - DS :heavy_check_mark:
 
 ### Warmup Challenge :heavy_check_mark:
 
@@ -22,7 +28,7 @@ Please find my profile here:
 * Counting Valleys :heavy_check_mark:
 * Sock Merchant :heavy_check_mark:
 
-## 30 Days of Code
+## 30 Days of Code :construction:
 
 * Day 06: Review Loop :heavy_check_mark:
 * Day 05: Loops :heavy_check_mark:
@@ -32,7 +38,7 @@ Please find my profile here:
 * Day 01: Data Types :heavy_check_mark:
 * Day 00: Hello World :heavy_check_mark:
 
-## Solved Problems
+## Solved Problems :construction:
 
 * Divisible Sum Pairs :heavy_check_mark:
 * Picking Numbers :heavy_check_mark:
