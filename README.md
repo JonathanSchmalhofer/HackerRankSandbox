@@ -30,6 +30,7 @@ Please find my profile here:
 
 ## 30 Days of Code :construction:
 
+* Day 07: Arrays :heavy_check_mark:
 * Day 06: Review Loop :heavy_check_mark:
 * Day 05: Loops :heavy_check_mark:
 * Day 04: Class vs Instance :heavy_check_mark:
